@@ -1,0 +1,26 @@
+﻿@model List<EmployeeWebApp.Models.Employee>
+
+@(Html
+    .Grid(Model)
+    .Build(columns =>
+    {
+        columns.Add(model => model.FirstName).Titled("First Name");
+        columns.Add(model => model.LastName).Titled("Last Name");
+        columns.Add(model => model.age).Titled("Age");
+        columns.Add(model => model.PhoneNumber).Titled("Phone Numebr");
+        columns.Add().RenderedAs(
+            model => new HtmlString("<button class='btn-info' onclick='edit("+ @model.Id + ")'>Edit</button>"));
+        columns.Add().RenderedAs(
+            model => new HtmlString("<button class='btn-danger' onclick='Delete("+ model.Id + ", "+ "\""+
+            model.FirstName +" "+ model.LastName+"\"" +")'>Delete</button>"));
+    })
+    .Empty("No data found")
+    .Id("my-ajax-grid")
+    .Pageable(pager =>
+    {
+        pager.PagesToDisplay = 2;
+        pager.RowsPerPage = 20;
+    })
+    .Filterable()
+    .Sortable()
+)

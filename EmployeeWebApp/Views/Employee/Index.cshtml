@@ -1,0 +1,105 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="alert">
+
+</div>
+
+<section>
+    <div class="container">
+        <!-- Trigger the form with a button -->
+        <button type="button" class="btn btn-success" data-toggle="modal" id="model-fade-btn" data-target="#form">Add</button>
+
+        <!-- "Employee" Form-->
+        <div class="modal fade" id="form" role="dialog">
+            <div class="modal-dialog" style="width: 350px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">User Information</h4>
+                    </div>
+                    <div class="modal-body" id="modal-fade-body">
+                        @Html.Action("Add")
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" id="close-fade" data-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="page-title">
+    <h3><i class="fa fa-plane"></i> Employees </h3>
+    <span id="refresh-content" onclick="refreshGridTable()" class="refresh-icon fa fa-refresh"></span>
+</div>
+<div id="employee-table">
+    @Html.AjaxGrid(Url.Action("GetAll"))
+</div>
+
+
+<script>
+    function onSuccess(data) {
+        var message = "";
+        if (data.done) {
+            message = '<div class="alert alert-success">' + data.message + '</div>';
+            $('#close-fade').click();
+            refreshGridTable();
+        } else {
+            message = '<div class="alert alert-danger">' + data.message + '</div>';
+        }
+        $('#alert').html(message);
+        setTimeout(() => { $('#alert').html("")}, 3000)
+    }
+    function onFaliure(data) {
+
+    }
+    function refreshGridTable() {
+        new MvcGrid($('#my-ajax-grid')[0]).reload();
+    }
+    document.getElementById('refresh-content').addEventListener('click', function () {
+        refreshGridTable();
+    });
+    function edit(id) {
+        $.ajax({
+            url: "@Url.Action("Edit")",
+            method: "Get",
+            data: {
+                id: id
+            }
+        }
+        ).done(function (data) {
+            $('#modal-fade-body').html(data);
+            $('#model-fade-btn').click();
+        }).fail(function (data) {
+        });
+    }
+    //todo
+    function Delete(id, name) {
+        var deleteConfirm = confirm(`Are you sure you want to delete ${name}?`);
+        if (deleteConfirm) {
+            $.ajax({
+                url: "@Url.Action("Delete")",
+                data: {
+                    id: id
+                }
+            }).done(function(data){
+                if (data.done) {
+                    message = '<div class="alert alert-success">' + data.message + '</div>';
+                    $('#close-fade').click();
+                    refreshGridTable();
+                } else {
+                    message = '<div class="alert alert-danger">' + data.message + '</div>';
+                }
+                $('#alert').html(message);
+                setTimeout(() => { $('#alert').html("") }, 3000)
+            }).fail(function (data) {
+            });
+        }
+    }
+</script>
